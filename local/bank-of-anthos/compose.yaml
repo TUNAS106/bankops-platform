@@ -1,0 +1,186 @@
+name: bankops-local
+
+x-app-env: &app-env
+  VERSION: "v0.6.11"
+  PORT: "8080"
+  LOG_LEVEL: "info"
+  LOCAL_ROUTING_NUM: "883745000"
+  PUB_KEY_PATH: "/tmp/.ssh/publickey"
+  ENABLE_TRACING: "false"
+  ENABLE_METRICS: "false"
+
+x-java-env: &java-env
+  <<: *app-env
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://ledger-db:5432/postgresdb"
+  SPRING_DATASOURCE_USERNAME: "admin"
+  SPRING_DATASOURCE_PASSWORD: "password"
+  JAVA_TOOL_OPTIONS: "-XX:-UseContainerSupport -XX:ActiveProcessorCount=2 -Xms128m -Xmx512m"
+  NAMESPACE: "local"
+
+x-public-key: &public-key
+  type: bind
+  source: ./.secrets/jwtRS256.key.pub
+  target: /tmp/.ssh/publickey
+  read_only: true
+  bind:
+    create_host_path: false
+
+x-http-health: &http-health
+  test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/ready', timeout=3)"]
+  interval: 10s
+  timeout: 5s
+  retries: 12
+  start_period: 30s
+
+services:
+  accounts-db:
+    image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/accounts-db:v0.6.11@sha256:e86d6533bcd05bf9e4d7d495bf03b0a5ca571f526f3a419572b6df2c7913d588
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: "accounts-admin"
+      POSTGRES_PASSWORD: "accounts-pwd"
+      POSTGRES_DB: "accounts-db"
+      LOCAL_ROUTING_NUM: "883745000"
+      USE_DEMO_DATA: "True"
+    volumes:
+      - accounts-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  ledger-db:
+    image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.11@sha256:b434822c3122bc3f4681741fc863c02f7bb2f476b0d6b307e2282b49d896c3dd
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "postgresdb"
+      LOCAL_ROUTING_NUM: "883745000"
+      USE_DEMO_DATA: "True"
+    volumes:
+      - ledger-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  userservice:
+    image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.11@sha256:4fcd6638b5ba9ac29096e83ea04f4ff280d1c66874908c7e1156337cad459dc0
+    platform: linux/amd64
+    environment:
+      <<: *app-env
+      ACCOUNTS_DB_URI: "postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db"
+      TOKEN_EXPIRY_SECONDS: "3600"
+      PRIV_KEY_PATH: "/tmp/.ssh/privatekey"
+    volumes:
+      - *public-key
+      - type: bind
+        source: ./.secrets/jwtRS256.key
+        target: /tmp/.ssh/privatekey
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      accounts-db:
+        condition: service_healthy
+    healthcheck: *http-health
+
+  contacts:
+    image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.11@sha256:67be31ff16e6e8de0ca0f8ee8fa9c23a900d89b2127d9877e69c488384ef8c2a
+    platform: linux/amd64
+    environment:
+      <<: *app-env
+      ACCOUNTS_DB_URI: "postgresql://accounts-admin:accounts-pwd@accounts-db:5432/accounts-db"
+    volumes:
+      - *public-key
+    depends_on:
+      accounts-db:
+        condition: service_healthy
+    healthcheck: *http-health
+
+  balancereader:
+    hostname: balancereader-local
+    image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.11@sha256:42a51d724d0537a5214b653d63c00fd60eb9d8ee0df3f396716c9e47262ae1ee
+    platform: linux/amd64
+    environment:
+      <<: *java-env
+      POLL_MS: "100"
+      CACHE_SIZE: "1000"
+    volumes:
+      - *public-key
+    depends_on:
+      ledger-db:
+        condition: service_healthy
+
+  transactionhistory:
+    hostname: transactionhistory-local
+    image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/transactionhistory:v0.6.11@sha256:609acd4d93aed03139a59e3c4f58bedb695cf4649dbe6fae636d2f45bad3d811
+    platform: linux/amd64
+    environment:
+      <<: *java-env
+      POLL_MS: "100"
+      CACHE_SIZE: "1000"
+      CACHE_MINUTES: "60"
+      HISTORY_LIMIT: "100"
+    volumes:
+      - *public-key
+    depends_on:
+      ledger-db:
+        condition: service_healthy
+
+  ledgerwriter:
+    hostname: ledgerwriter-local
+    image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.11@sha256:b66efed587c295788369459898e7ae5a5e15150c3fcd782170c19a8c4b31059d
+    platform: linux/amd64
+    environment:
+      <<: *java-env
+      BALANCES_API_ADDR: "balancereader:8080"
+    volumes:
+      - *public-key
+    depends_on:
+      ledger-db:
+        condition: service_healthy
+      balancereader:
+        condition: service_started
+
+  frontend:
+    image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.11@sha256:5746f018f3d85475e25b8283bf8fb476e2501196bbe71e3ce144527e7280e7ae
+    platform: linux/amd64
+    environment:
+      <<: *app-env
+      USERSERVICE_API_ADDR: "userservice:8080"
+      CONTACTS_API_ADDR: "contacts:8080"
+      TRANSACTIONS_API_ADDR: "ledgerwriter:8080"
+      BALANCES_API_ADDR: "balancereader:8080"
+      HISTORY_API_ADDR: "transactionhistory:8080"
+      DEFAULT_USERNAME: "testuser"
+      DEFAULT_PASSWORD: "bankofanthos"
+      SCHEME: "http"
+      ENV_PLATFORM: "local"
+      BANK_NAME: "BankOps Local"
+      METADATA_SERVER: "127.0.0.1:65535"
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-18080}:8080"
+    volumes:
+      - *public-key
+    depends_on:
+      userservice:
+        condition: service_healthy
+      contacts:
+        condition: service_healthy
+      balancereader:
+        condition: service_started
+      transactionhistory:
+        condition: service_started
+      ledgerwriter:
+        condition: service_started
+    healthcheck: *http-health
+
+volumes:
+  accounts-db-data:
+  ledger-db-data:
