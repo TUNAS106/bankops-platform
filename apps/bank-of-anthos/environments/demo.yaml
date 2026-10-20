@@ -8,4 +8,8 @@ balancereader:
 loadgenerator:
   enabled: false
 ingress:
-  enabled: false
+  enabled: true
+  className: traefik
+  host: bankops.test
+  tls:
+    false
