@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  POSTGRES_DB: accounts-db
+  POSTGRES_USER: accounts-admin
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "bankops.labels" . | nindent 4 }}
+    app: accounts-db
+    application: bank-of-anthos
+    environment: development
+    team: accounts
+    tier: db
+  name: accounts-db-config

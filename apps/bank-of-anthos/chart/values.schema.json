@@ -1,0 +1,935 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bank of Anthos values",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "app": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "localRoutingNum": {
+          "type": "string",
+          "pattern": "^[0-9]{9}$"
+        },
+        "logLevel": {
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "error"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enableTracing": {
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ]
+        },
+        "enableMetrics": {
+          "type": "string",
+          "enum": [
+            "true",
+            "false"
+          ]
+        }
+      },
+      "required": [
+        "localRoutingNum",
+        "logLevel",
+        "version",
+        "enableTracing",
+        "enableMetrics"
+      ]
+    },
+    "serviceAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+        },
+        "automountServiceAccountToken": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "automountServiceAccountToken"
+      ]
+    },
+    "jwt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "existingSecret": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+        }
+      },
+      "required": [
+        "existingSecret"
+      ]
+    },
+    "demoData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "useDemoData": {
+          "type": "string",
+          "enum": [
+            "True",
+            "False"
+          ]
+        },
+        "username": {
+          "type": "string",
+          "minLength": 1
+        },
+        "password": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "useDemoData",
+        "username",
+        "password"
+      ]
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 253,
+            "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "nodeSelector": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "tolerations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "java": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "toolOptions": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "toolOptions"
+      ]
+    },
+    "accountsDb": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "existingClaim": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+        },
+        "existingSecret": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+        }
+      },
+      "required": [
+        "image",
+        "resources",
+        "existingClaim",
+        "existingSecret"
+      ]
+    },
+    "ledgerDb": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "existingClaim": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+        },
+        "existingSecret": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+        }
+      },
+      "required": [
+        "image",
+        "resources",
+        "existingClaim",
+        "existingSecret"
+      ]
+    },
+    "userservice": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tokenExpirySeconds": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        }
+      },
+      "required": [
+        "image",
+        "resources",
+        "replicas",
+        "tokenExpirySeconds"
+      ]
+    },
+    "contacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "image",
+        "resources",
+        "replicas"
+      ]
+    },
+    "balancereader": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pollMs": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "cacheSize": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        }
+      },
+      "required": [
+        "image",
+        "resources",
+        "replicas",
+        "pollMs",
+        "cacheSize"
+      ]
+    },
+    "transactionhistory": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pollMs": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "cacheSize": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "cacheMinutes": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "historyLimit": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        }
+      },
+      "required": [
+        "image",
+        "resources",
+        "replicas",
+        "pollMs",
+        "cacheSize",
+        "cacheMinutes",
+        "historyLimit"
+      ]
+    },
+    "ledgerwriter": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "image",
+        "resources",
+        "replicas"
+      ]
+    },
+    "frontend": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bankName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "platform": {
+          "type": "string",
+          "enum": [
+            "aws",
+            "local",
+            "onprem",
+            "gcp",
+            "azure",
+            "alibaba"
+          ]
+        },
+        "metadataServer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scheme": {
+          "type": "string",
+          "enum": [
+            "http",
+            "https"
+          ]
+        },
+        "service": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ClusterIP",
+                "NodePort"
+              ]
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "nodePort": {
+              "type": "integer",
+              "minimum": 30000,
+              "maximum": 32767
+            }
+          },
+          "required": [
+            "type",
+            "port",
+            "nodePort"
+          ]
+        }
+      },
+      "required": [
+        "image",
+        "resources",
+        "replicas",
+        "bankName",
+        "platform",
+        "metadataServer",
+        "scheme",
+        "service"
+      ]
+    },
+    "loadgenerator": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "properties": {
+            "requests": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "users": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "logLevel": {
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "warning",
+            "error",
+            "critical"
+          ]
+        }
+      },
+      "required": [
+        "image",
+        "resources",
+        "replicas",
+        "enabled",
+        "users",
+        "logLevel"
+      ]
+    },
+    "ingress": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "className": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "host": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+        },
+        "tls": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "secretName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "secretName"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "className",
+        "annotations",
+        "host",
+        "tls"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              },
+              "tls": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "tls": {
+                "properties": {
+                  "secretName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 253,
+                    "pattern": "^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "app",
+    "serviceAccount",
+    "jwt",
+    "demoData",
+    "imagePullSecrets",
+    "nodeSelector",
+    "tolerations",
+    "java",
+    "accountsDb",
+    "ledgerDb",
+    "userservice",
+    "contacts",
+    "balancereader",
+    "transactionhistory",
+    "ledgerwriter",
+    "frontend",
+    "loadgenerator",
+    "ingress"
+  ]
+}

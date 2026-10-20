@@ -1,0 +1,161 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "bankops.labels" . | nindent 4 }}
+    application: bank-of-anthos
+    environment: development
+    team: frontend
+    tier: web
+  name: frontend
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.frontend.service.port }}
+      targetPort: 8080
+      {{- if eq .Values.frontend.service.type "NodePort" }}
+      nodePort: {{ .Values.frontend.service.nodePort }}
+      {{- end }}
+  selector:
+    app: frontend
+    application: bank-of-anthos
+    environment: development
+    team: frontend
+    tier: web
+  type: {{ .Values.frontend.service.type }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "bankops.labels" . | nindent 4 }}
+    application: bank-of-anthos
+    environment: development
+    team: frontend
+    tier: web
+  name: frontend
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels:
+      app: frontend
+      application: bank-of-anthos
+      environment: development
+      team: frontend
+      tier: web
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+      labels:
+        app: frontend
+        application: bank-of-anthos
+        environment: development
+        team: frontend
+        tier: web
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - env:
+            - name: VERSION
+              value: {{ .Values.app.version | quote }}
+            - name: PORT
+              value: "8080"
+            - name: ENABLE_TRACING
+              value: {{ .Values.app.enableTracing | quote }}
+            - name: SCHEME
+              value: {{ .Values.frontend.scheme | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.app.logLevel | quote }}
+            - name: DEFAULT_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DEMO_LOGIN_USERNAME
+                  name: demo-data-config
+            - name: DEFAULT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: DEMO_LOGIN_PASSWORD
+                  name: demo-data-config
+            - name: REGISTERED_OAUTH_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: DEMO_OAUTH_CLIENT_ID
+                  name: oauth-config
+                  optional: true
+            - name: ALLOWED_OAUTH_REDIRECT_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: DEMO_OAUTH_REDIRECT_URI
+                  name: oauth-config
+                  optional: true
+            - name: BANK_NAME
+              value: {{ .Values.frontend.bankName | quote }}
+            - name: ENV_PLATFORM
+              value: {{ .Values.frontend.platform | quote }}
+            - name: METADATA_SERVER
+              value: {{ .Values.frontend.metadataServer | quote }}
+          envFrom:
+            - configMapRef:
+                name: environment-config
+            - configMapRef:
+                name: service-api-config
+          image: {{ .Values.frontend.image | quote }}
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 30
+          name: front
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /tmp/.ssh
+              name: publickey
+              readOnly: true
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      serviceAccountName: {{ .Values.serviceAccount.name | quote }}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - emptyDir: {}
+          name: tmp
+        - name: publickey
+          secret:
+            items:
+              - key: jwtRS256.key.pub
+                path: publickey
+            secretName: {{ .Values.jwt.existingSecret | quote }}

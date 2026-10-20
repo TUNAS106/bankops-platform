@@ -1,0 +1,11 @@
+# Use with chart/values.yaml on the current RKE2 demo cluster.
+# Existing database credentials, JWT keys and PVCs remain outside Helm.
+frontend:
+  replicas: 1
+  bankName: BankOps Demo
+balancereader:
+  cacheSize: "1000"
+loadgenerator:
+  enabled: false
+ingress:
+  enabled: false

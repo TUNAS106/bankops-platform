@@ -1,0 +1,7 @@
+{{/* Keep the manual deployment's names/selectors; identify Helm ownership separately. */}}
+{{- define "bankops.labels" -}}
+app.kubernetes.io/name: {{ .Chart.Name | quote }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | quote }}
+{{- end }}

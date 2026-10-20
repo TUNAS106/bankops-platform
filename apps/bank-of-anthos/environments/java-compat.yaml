@@ -1,0 +1,4 @@
+# Optional: only use if the pinned image logs a CgroupV2Subsystem/
+# CgroupInfo.getMountPoint() error on the host's cgroup implementation.
+java:
+  toolOptions: "-XX:-UseContainerSupport -XX:ActiveProcessorCount=2 -Xms128m -Xmx256m"

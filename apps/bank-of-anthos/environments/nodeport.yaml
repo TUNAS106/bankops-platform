@@ -1,0 +1,6 @@
+# Optional public-IP access. Add after demo.yaml with a second -f argument.
+# Open TCP 30080 from your client public IP in the chosen EC2 node's SG.
+frontend:
+  service:
+    type: NodePort
+    nodePort: 30080

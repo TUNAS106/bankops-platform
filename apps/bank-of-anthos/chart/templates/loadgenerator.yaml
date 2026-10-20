@@ -1,0 +1,69 @@
+{{- if .Values.loadgenerator.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "bankops.labels" . | nindent 4 }}
+    environment: development
+    team: loadgenerator
+    tier: test
+  name: loadgenerator
+spec:
+  replicas: {{ .Values.loadgenerator.replicas }}
+  selector:
+    matchLabels:
+      app: loadgenerator
+      environment: development
+      team: loadgenerator
+      tier: test
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+      labels:
+        app: loadgenerator
+        environment: development
+        team: loadgenerator
+        tier: test
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - env:
+            - name: FRONTEND_ADDR
+              value: {{ printf "frontend:%v" .Values.frontend.service.port | quote }}
+            - name: USERS
+              value: {{ .Values.loadgenerator.users | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.loadgenerator.logLevel | quote }}
+          image: {{ .Values.loadgenerator.image | quote }}
+          name: loadgenerator
+          resources:
+            {{- toYaml .Values.loadgenerator.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      serviceAccountName: {{ .Values.serviceAccount.name | quote }}
+      terminationGracePeriodSeconds: 5
+{{- end }}

@@ -1,0 +1,151 @@
+# Defaults reuse the existing database PVCs and Secrets in the release namespace.
+# Database passwords/private keys must remain outside this file.
+# Resource names/selectors are stable for adoption of the manual deployment.
+app:
+  localRoutingNum: '883745000'
+  logLevel: info
+  version: v0.6.11
+  enableTracing: 'false'
+  enableMetrics: 'false'
+serviceAccount:
+  name: bank-of-anthos
+  automountServiceAccountToken: false
+jwt:
+  existingSecret: jwt-key
+demoData:
+  useDemoData: 'True'
+  username: testuser
+  password: bankofanthos
+accountsDb:
+  existingClaim: accounts-db-data
+  existingSecret: accounts-db-secret
+  image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/accounts-db:v0.6.11@sha256:e86d6533bcd05bf9e4d7d495bf03b0a5ca571f526f3a419572b6df2c7913d588
+  resources:
+    limits:
+      cpu: 250m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+ledgerDb:
+  existingClaim: ledger-db-data
+  existingSecret: ledger-db-secret
+  image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledger-db:v0.6.11@sha256:b434822c3122bc3f4681741fc863c02f7bb2f476b0d6b307e2282b49d896c3dd
+  resources:
+    limits:
+      cpu: 250m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+userservice:
+  replicas: 1
+  image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/userservice:v0.6.11@sha256:4fcd6638b5ba9ac29096e83ea04f4ff280d1c66874908c7e1156337cad459dc0
+  resources:
+    limits:
+      cpu: 500m
+      ephemeral-storage: 0.25Gi
+      memory: 256Mi
+    requests:
+      cpu: 260m
+      ephemeral-storage: 0.25Gi
+      memory: 128Mi
+  tokenExpirySeconds: '3600'
+contacts:
+  replicas: 1
+  image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/contacts:v0.6.11@sha256:67be31ff16e6e8de0ca0f8ee8fa9c23a900d89b2127d9877e69c488384ef8c2a
+  resources:
+    limits:
+      cpu: 250m
+      ephemeral-storage: 0.25Gi
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      ephemeral-storage: 0.25Gi
+      memory: 64Mi
+balancereader:
+  replicas: 1
+  image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/balancereader:v0.6.11@sha256:42a51d724d0537a5214b653d63c00fd60eb9d8ee0df3f396716c9e47262ae1ee
+  resources:
+    limits:
+      cpu: 500m
+      ephemeral-storage: 0.5Gi
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      ephemeral-storage: 0.5Gi
+      memory: 256Mi
+  pollMs: '100'
+  cacheSize: '1000000'
+transactionhistory:
+  replicas: 1
+  image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/transactionhistory:v0.6.11@sha256:609acd4d93aed03139a59e3c4f58bedb695cf4649dbe6fae636d2f45bad3d811
+  resources:
+    limits:
+      cpu: 500m
+      ephemeral-storage: 0.5Gi
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      ephemeral-storage: 0.5Gi
+      memory: 256Mi
+  pollMs: '100'
+  cacheSize: '1000'
+  cacheMinutes: '60'
+  historyLimit: '100'
+ledgerwriter:
+  replicas: 1
+  image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/ledgerwriter:v0.6.11@sha256:b66efed587c295788369459898e7ae5a5e15150c3fcd782170c19a8c4b31059d
+  resources:
+    limits:
+      cpu: 500m
+      ephemeral-storage: 0.5Gi
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      ephemeral-storage: 0.5Gi
+      memory: 256Mi
+frontend:
+  replicas: 1
+  image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/frontend:v0.6.11@sha256:5746f018f3d85475e25b8283bf8fb476e2501196bbe71e3ce144527e7280e7ae
+  resources:
+    limits:
+      cpu: 250m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+  bankName: BankOps
+  platform: aws
+  metadataServer: 127.0.0.1:65535
+  scheme: http
+  service:
+    type: ClusterIP
+    port: 80
+    nodePort: 30080
+loadgenerator:
+  enabled: false
+  replicas: 1
+  users: '5'
+  logLevel: error
+  image: us-central1-docker.pkg.dev/bank-of-anthos-ci/bank-of-anthos/loadgenerator:v0.6.11@sha256:59928b82854e79bcf4c30561a6268fcb20a7a53275111b2fcb9174d28dc97a4c
+  resources:
+    limits:
+      cpu: 250m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+imagePullSecrets: []
+nodeSelector: {}
+tolerations: []
+java:
+  toolOptions: -XX:ActiveProcessorCount=2 -Xms128m -Xmx256m
+ingress:
+  enabled: false
+  className: traefik
+  annotations: {}
+  host: bankops.example.com
+  tls:
+    enabled: false
+    secretName: ''

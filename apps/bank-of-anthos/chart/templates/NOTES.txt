@@ -1,0 +1,26 @@
+Release {{ .Release.Name }} in namespace {{ .Release.Namespace }} manages Bank of Anthos.
+
+Existing PVCs (managed separately):
+  {{ .Values.accountsDb.existingClaim }}
+  {{ .Values.ledgerDb.existingClaim }}
+Existing Secrets (managed separately):
+  {{ .Values.accountsDb.existingSecret }}
+  {{ .Values.ledgerDb.existingSecret }}
+  {{ .Values.jwt.existingSecret }}
+
+Check application status:
+  kubectl -n {{ .Release.Namespace }} get pods,svc,pvc
+
+{{ if .Values.ingress.enabled -}}
+Ingress host: {{ .Values.ingress.host }} (requires an active ingress controller and DNS).
+{{ else if eq .Values.frontend.service.type "NodePort" -}}
+Frontend: http://<EC2_PUBLIC_IP>:{{ .Values.frontend.service.nodePort }}
+Allow this TCP port from your client IP in the EC2 security group.
+{{ else -}}
+On the EC2 master, temporary access using its public IP:
+  kubectl -n {{ .Release.Namespace }} port-forward --address 0.0.0.0 svc/frontend 18080:{{ .Values.frontend.service.port }}
+  Browser: http://<MASTER_PUBLIC_IP>:18080 (allow TCP 18080 from your client IP).
+{{ end }}
+ConfigMap changes roll affected workloads through checksum annotations.
+After rotating externally managed Secrets, restart the affected workloads explicitly.
+Do not uninstall this release to troubleshoot: its workloads and Services would be removed.
