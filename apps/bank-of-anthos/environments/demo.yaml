@@ -1,10 +1,17 @@
 # Use with chart/values.yaml on the current RKE2 demo cluster.
 # Existing database credentials, JWT keys and PVCs remain outside Helm.
+accountsDb:
+  image: tunas106/bankops-accounts-db:sha-bf1dd2dbd258-b9
+ledgerDb:
+  image: tunas106/bankops-ledger-db:sha-bf1dd2dbd258-b9
 frontend:
   replicas: 1
   bankName: BankOps Demo
+  image: tunas106/bankops-frontend:sha-bf1dd2dbd258-b9
 balancereader:
   cacheSize: "1000"
+  replicas: 1
+  image: tunas106/bankops-balancereader:sha-bf1dd2dbd258-b9
 loadgenerator:
   enabled: false
 ingress:
@@ -12,4 +19,16 @@ ingress:
   className: traefik
   host: bankops.test
   tls:
-    false
+    enabled: false
+userservice:
+  replicas: 1
+  image: tunas106/bankops-userservice:sha-bf1dd2dbd258-b9
+contacts:
+  replicas: 1
+  image: tunas106/bankops-contacts:sha-bf1dd2dbd258-b9
+transactionhistory:
+  replicas: 1
+  image: tunas106/bankops-transactionhistory:sha-bf1dd2dbd258-b9
+ledgerwriter:
+  replicas: 1
+  image: tunas106/bankops-ledgerwriter:sha-bf1dd2dbd258-b9
