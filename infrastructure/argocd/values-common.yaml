@@ -1,0 +1,79 @@
+global:
+  # Thay hostname này trước khi cài HTTPS/SSO.
+  domain: argocd.example.com
+  nodeSelector:
+    kubernetes.io/os: linux
+    bankops.io/platform: "true"
+  networkPolicy:
+    create: true
+
+configs:
+  cm:
+    application.resourceTrackingMethod: annotation
+    admin.enabled: "true"
+    users.anonymous.enabled: "false"
+    # Tài khoản cá nhân tạm cho lab; production nên chuyển sang OIDC/SSO.
+    accounts.bankops-operator: login
+  params:
+    # HTTPS kết thúc tại Traefik. Backend là HTTP trong cluster.
+    server.insecure: "true"
+  rbac:
+    # Role không có quyền mặc định; chỉ cấp theo policy bên dưới.
+    policy.default: role:no-access
+    policy.csv: |
+      p, role:bankops-operator, applications, get, bankops/*, allow
+      p, role:bankops-operator, applications, sync, bankops/*, allow
+      p, role:bankops-operator, logs, get, bankops/*, allow
+      p, role:bankops-operator, projects, get, bankops, allow
+      g, bankops-operator, role:bankops-operator
+
+controller:
+  replicas: 1
+  resources:
+    requests: {cpu: 200m, memory: 512Mi}
+    limits: {cpu: "1", memory: 2Gi}
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+server:
+  replicas: 1
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 500m, memory: 512Mi}
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+repoServer:
+  replicas: 1
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {cpu: "1", memory: 1Gi}
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+redis:
+  enabled: true
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {cpu: 250m, memory: 256Mi}
+
+redis-ha:
+  enabled: false
+
+dex:
+  enabled: false
+applicationSet:
+  # Chưa sử dụng ApplicationSet; chart này không có applicationSet.enabled.
+  replicas: 0
+notifications:
+  enabled: false
