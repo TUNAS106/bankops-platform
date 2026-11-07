@@ -1,6 +1,6 @@
 global:
-  # Thay hostname này trước khi cài HTTPS/SSO.
-  domain: argocd.example.com
+  # Hostname dùng trong file hosts trên laptop khi thực hành Ingress HTTP.
+  domain: argocd.test
   nodeSelector:
     kubernetes.io/os: linux
     bankops.io/platform: "true"
@@ -9,13 +9,15 @@ global:
 
 configs:
   cm:
+    # URL truy cập từ trình duyệt; đổi sang HTTPS khi cấu hình TLS sau này.
+    url: http://argocd.test
     application.resourceTrackingMethod: annotation
     admin.enabled: "true"
     users.anonymous.enabled: "false"
     # Tài khoản cá nhân tạm cho lab; production nên chuyển sang OIDC/SSO.
     accounts.bankops-operator: login
   params:
-    # HTTPS kết thúc tại Traefik. Backend là HTTP trong cluster.
+    # Cho phép backend HTTP; Ingress lab cũng dùng HTTP, chưa có TLS.
     server.insecure: "true"
   rbac:
     # Role không có quyền mặc định; chỉ cấp theo policy bên dưới.
