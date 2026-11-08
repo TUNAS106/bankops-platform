@@ -6,7 +6,7 @@ ledgerDb:
   image: tunas106/bankops-ledger-db:sha-bf1dd2dbd258-b9
 frontend:
   replicas: 1
-  bankName: BankOps Demo
+  bankName: BankOps Auto Sync Test
   image: tunas106/bankops-frontend:sha-bf1dd2dbd258-b9
 balancereader:
   cacheSize: "1000"
