@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bankops
+  namespace: argocd
+spec:
+  project: bankops
+  source:
+    repoURL: https://github.com/TUNAS106/bankops-platform.git
+    targetRevision: main
+    path: apps/bank-of-anthos/chart
+    helm:
+      releaseName: bankops
+      valueFiles:
+        - ../environments/demo.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: bankops-app
+  syncPolicy:
+    syncOptions:
+      - FailOnSharedResource=true

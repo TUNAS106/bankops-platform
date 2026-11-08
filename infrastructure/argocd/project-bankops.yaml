@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bankops
+  namespace: argocd
+spec:
+  description: BankOps application on the RKE2 demo cluster
+  sourceRepos:
+    - https://github.com/TUNAS106/bankops-platform.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: bankops-app
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: StatefulSet
+    - group: networking.k8s.io
+      kind: Ingress
