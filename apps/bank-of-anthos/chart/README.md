@@ -6,7 +6,7 @@ Loadgenerator và Ingress là tùy chọn, mặc định tắt. Image được g
 
 ## 1. Điều kiện trước khi chạy
 
-- Helm 4; chart và lệnh trong bài được kiểm chứng với Helm **v4.2.0**.
+- Helm 3 hoặc Helm 4. Chart đã được kiểm chứng với Helm **v4.2.0**; các lệnh install/upgrade bên dưới dùng dạng không có flag riêng của Helm 4.
 - `kubectl` và Helm cùng truy cập đúng cluster RKE2.
 - Namespace `bankops-app` tồn tại.
 - Hai PVC bên dưới đã `Bound`, dùng Longhorn.
@@ -148,13 +148,21 @@ python3 apps/bank-of-anthos/scripts/adopt-existing.py \
 
 ## 6. Dry-run và triển khai bằng Helm
 
+Kiểm tra `helm version --short` trước khi chọn flag:
+
+| Phiên bản | Cách dùng lệnh bên dưới |
+|---|---|
+| Helm 3 | Dùng nguyên lệnh; phiên bản này không có `--server-side` |
+| Helm 4 | Thêm `--server-side=false` vào lệnh để giữ cách cập nhật phía client trong bài chuyển đổi |
+
+Không viết `-- server-side=false`: khoảng trắng sau `--` làm nó trở thành dấu kết thúc danh sách flag, không phải tùy chọn `--server-side`.
+
 Sau khi tiếp nhận metadata, kiểm tra bằng Helm trên **EC2 master**:
 
 ```bash
 helm upgrade --install bankops ./apps/bank-of-anthos/chart \
   -n bankops-app \
   -f ./apps/bank-of-anthos/environments/demo.yaml \
-  --server-side=false \
   --dry-run=server \
   --hide-secret
 ```
@@ -165,12 +173,11 @@ Khi thành công, chạy bản thật:
 helm upgrade --install bankops ./apps/bank-of-anthos/chart \
   -n bankops-app \
   -f ./apps/bank-of-anthos/environments/demo.yaml \
-  --server-side=false \
   --wait \
   --timeout 10m
 ```
 
-`--server-side=false` là cú pháp Helm 4 dùng trong bài tiếp nhận này. Không thêm `--force-replace`, `--force-conflicts` hoặc rollback/uninstall tự động để bỏ qua lỗi trong lần chuyển đầu. Xem [Helm upgrade](https://helm.sh/docs/helm/helm_upgrade/).
+Helm 3 dùng cơ chế cập nhật phía client mặc định, nên bỏ `--server-side=false` không làm thiếu bước của bài chuyển đổi. Không thêm flag force hoặc rollback/uninstall tự động để bỏ qua lỗi trong lần chuyển đầu. Xem [Helm 3 upgrade](https://helm.sh/docs/v3/helm/helm_upgrade/) và [Helm 4 upgrade](https://helm.sh/docs/helm/helm_upgrade/).
 
 Kiểm tra:
 
@@ -215,7 +222,6 @@ helm upgrade --install bankops ./apps/bank-of-anthos/chart \
   -n bankops-app \
   -f ./apps/bank-of-anthos/environments/demo.yaml \
   -f ./apps/bank-of-anthos/environments/nodeport.yaml \
-  --server-side=false \
   --wait --timeout 10m
 ```
 
