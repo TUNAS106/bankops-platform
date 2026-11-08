@@ -1,17 +1,15 @@
-# Use with chart/values.yaml on the current RKE2 demo cluster.
-# Existing database credentials, JWT keys and PVCs remain outside Helm.
 accountsDb:
-  image: tunas106/bankops-accounts-db:sha-bf1dd2dbd258-b9
+  image: tunas106/bankops-accounts-db:sha-c5f2380990b7-b14@sha256:3b26cf3ac5e2f4679dbdfc555665b995a485f4fad2e73631aa76be6e6dbb73a7
 ledgerDb:
-  image: tunas106/bankops-ledger-db:sha-bf1dd2dbd258-b9
+  image: tunas106/bankops-ledger-db:sha-c5f2380990b7-b14@sha256:156d8b415985717341d440731ecfcd42cc0c3a031cd289188c0396f468675343
 frontend:
   replicas: 1
   bankName: BankOps Auto Sync Test
-  image: tunas106/bankops-frontend:sha-bf1dd2dbd258-b9
+  image: tunas106/bankops-frontend:sha-c5f2380990b7-b14@sha256:7d711244469023a08ec98649173fb8e6d15c9d98408d1c116d77116c9b8458a0
 balancereader:
-  cacheSize: "1000"
+  cacheSize: '1000'
   replicas: 1
-  image: tunas106/bankops-balancereader:sha-bf1dd2dbd258-b9
+  image: tunas106/bankops-balancereader:sha-c5f2380990b7-b14@sha256:42a51d724d0537a5214b653d63c00fd60eb9d8ee0df3f396716c9e47262ae1ee
 loadgenerator:
   enabled: false
 ingress:
@@ -22,13 +20,13 @@ ingress:
     enabled: false
 userservice:
   replicas: 1
-  image: tunas106/bankops-userservice:sha-bf1dd2dbd258-b9
+  image: tunas106/bankops-userservice:sha-c5f2380990b7-b14@sha256:98c3eda821764b577c988029493e44b32e73e3f6a2760ce1cb1bca9ec72b37f0
 contacts:
   replicas: 1
-  image: tunas106/bankops-contacts:sha-bf1dd2dbd258-b9
+  image: tunas106/bankops-contacts:sha-c5f2380990b7-b14@sha256:a8ffb4fe1c50f7e6aef62a527bf33aa36a9b1ad981d0b3e353e5e7242a9a716b
 transactionhistory:
   replicas: 1
-  image: tunas106/bankops-transactionhistory:sha-bf1dd2dbd258-b9
+  image: tunas106/bankops-transactionhistory:sha-c5f2380990b7-b14@sha256:609acd4d93aed03139a59e3c4f58bedb695cf4649dbe6fae636d2f45bad3d811
 ledgerwriter:
   replicas: 1
-  image: tunas106/bankops-ledgerwriter:sha-bf1dd2dbd258-b9
+  image: tunas106/bankops-ledgerwriter:sha-c5f2380990b7-b14@sha256:b66efed587c295788369459898e7ae5a5e15150c3fcd782170c19a8c4b31059d
