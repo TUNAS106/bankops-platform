@@ -1,0 +1,138 @@
+# Dành cho lab nhỏ; điều chỉnh theo số đo thực tế.
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+defaultRules:
+  rules:
+    etcd: false
+    kubeControllerManager: false
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
+    kubeProxy: false
+
+prometheusOperator:
+  nodeSelector:
+    bankops.io/platform: "true"
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 500m, memory: 512Mi}
+  admissionWebhooks:
+    patch:
+      nodeSelector:
+        bankops.io/platform: "true"
+      resources:
+        requests: {cpu: 20m, memory: 32Mi}
+        limits: {cpu: 200m, memory: 128Mi}
+  prometheusConfigReloader:
+    resources:
+      requests: {cpu: 10m, memory: 32Mi}
+      limits: {cpu: 100m, memory: 128Mi}
+
+prometheus:
+  prometheusSpec:
+    replicas: 1
+    nodeSelector:
+      bankops.io/platform: "true"
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    retention: 2d
+    retentionSize: 2GB
+    resources:
+      requests: {cpu: 200m, memory: 768Mi}
+      limits: {cpu: "1", memory: 1536Mi}
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelector:
+      matchLabels:
+        release: monitoring
+    serviceMonitorNamespaceSelector: {}
+    podMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelector:
+      matchLabels:
+        release: monitoring
+    podMonitorNamespaceSelector: {}
+    ruleSelectorNilUsesHelmValues: false
+    ruleSelector:
+      matchLabels:
+        release: monitoring
+    ruleNamespaceSelector: {}
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 4Gi
+
+alertmanager:
+  config:
+    route:
+      receiver: "null"
+      group_by: [namespace, alertname]
+      group_wait: 30s
+      group_interval: 1m
+      repeat_interval: 4h
+      routes:
+        - receiver: lab-webhook
+          matchers:
+            - 'alertname="BankOpsMonitoringTest"'
+    receivers:
+      - name: "null"
+      - name: lab-webhook
+        webhook_configs:
+          - url: http://alert-receiver.monitoring.svc.cluster.local:8080/
+            send_resolved: true
+  alertmanagerSpec:
+    replicas: 1
+    nodeSelector:
+      bankops.io/platform: "true"
+    resources:
+      requests: {cpu: 50m, memory: 64Mi}
+      limits: {cpu: 250m, memory: 256Mi}
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 1Gi
+
+grafana:
+  defaultDashboardsTimezone: Asia/Ho_Chi_Minh
+  nodeSelector:
+    bankops.io/platform: "true"
+  persistence:
+    enabled: false
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 500m, memory: 512Mi}
+  sidecar:
+    resources:
+      requests: {cpu: 10m, memory: 32Mi}
+      limits: {cpu: 100m, memory: 128Mi}
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+
+kube-state-metrics:
+  nodeSelector:
+    bankops.io/platform: "true"
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 250m, memory: 256Mi}
+
+prometheus-node-exporter:
+  # Chạy trên cả master và workers để đo đủ các node.
+  tolerations:
+    - operator: Exists
+      effect: NoSchedule
+  resources:
+    requests: {cpu: 20m, memory: 32Mi}
+    limits: {cpu: 200m, memory: 128Mi}
