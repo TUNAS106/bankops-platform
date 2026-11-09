@@ -119,7 +119,20 @@ grafana:
   service:
     type: ClusterIP
   ingress:
-    enabled: false
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+    hosts:
+      - grafana.test
+    path: /
+    pathType: Prefix
+    tls: []
+
+  grafana.ini:
+    server:
+      domain: grafana.test
+      root_url: http://grafana.test/
 
 kube-state-metrics:
   nodeSelector:
