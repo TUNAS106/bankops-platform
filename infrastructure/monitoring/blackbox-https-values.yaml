@@ -1,0 +1,22 @@
+extraConfigmapMounts:
+  - name: bankops-demo-ca
+    mountPath: /etc/blackbox/bankops-ca
+    configMap: bankops-demo-ca
+    readOnly: true
+    defaultMode: 420
+config:
+  modules:
+    bankops_https:
+      prober: http
+      timeout: 5s
+      http:
+        method: GET
+        valid_status_codes: [200]
+        follow_redirects: false
+        preferred_ip_protocol: ip4
+        headers:
+          Host: bankops.test
+        tls_config:
+          ca_file: /etc/blackbox/bankops-ca/ca.crt
+          server_name: bankops.test
+          insecure_skip_verify: false
