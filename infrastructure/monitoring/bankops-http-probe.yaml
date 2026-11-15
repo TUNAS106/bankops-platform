@@ -9,7 +9,7 @@ spec:
   jobName: bankops-http
   interval: 30s
   scrapeTimeout: 10s
-  module: bankops_http
+  module: bankops_https
   prober:
     url: blackbox-exporter.monitoring.svc.cluster.local:9115
     scheme: http
@@ -17,4 +17,4 @@ spec:
   targets:
     staticConfig:
       static:
-        - http://rke2-traefik.kube-system.svc.cluster.local/login
+        - https://rke2-traefik.kube-system.svc.cluster.local/login
