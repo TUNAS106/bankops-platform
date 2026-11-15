@@ -1,0 +1,59 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: bankops-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: bankops.availability
+      rules:
+        - alert: BankOpsHTTPUnavailable
+          expr: probe_success{job=~"bankops-http(-demo)?"} == 0
+          for: 2m
+          labels:
+            scope: bankops
+            severity: critical
+            namespace: bankops-app
+          annotations:
+            summary: "HTTP probe BankOps thất bại: {{ $labels.instance }}"
+            description: "Đọc Blackbox debug, Ingress Traefik, Service endpoints và log frontend."
+    - name: bankops.workloads
+      rules:
+        - alert: BankOpsPodCrashLooping
+          expr: |
+            max by (namespace, pod, container) (
+              max_over_time(kube_pod_container_status_waiting_reason{
+                namespace="bankops-app",reason="CrashLoopBackOff"
+              }[5m])
+            ) >= 1
+          for: 3m
+          labels:
+            scope: bankops
+            severity: warning
+          annotations:
+            summary: "Container {{ $labels.container }} trong Pod {{ $labels.pod }} crash lặp lại"
+            description: "kubectl describe pod và kubectl logs --previous; kiểm tra command, config, Secret, dependency và exit code."
+    - name: bankops.capacity
+      rules:
+        - alert: BankOpsStorageSpaceLow
+          expr: |
+            (
+              node_filesystem_avail_bytes{
+                mountpoint=~"/|/var/lib/longhorn",fstype!~"tmpfs|overlay|squashfs"
+              }
+              /
+              node_filesystem_size_bytes{
+                mountpoint=~"/|/var/lib/longhorn",fstype!~"tmpfs|overlay|squashfs"
+              }
+            ) < 0.15
+            and on (instance, device, mountpoint)
+            (node_filesystem_readonly == 0)
+          for: 10m
+          labels:
+            scope: bankops
+            severity: warning
+          annotations:
+            summary: "Filesystem {{ $labels.mountpoint }} trên {{ $labels.instance }} còn dưới 15%"
+            description: "Xác định đúng disk/mount; kiểm tra df, Longhorn usage/snapshots và tốc độ tăng dữ liệu trước khi mở rộng hoặc dọn dữ liệu an toàn."
