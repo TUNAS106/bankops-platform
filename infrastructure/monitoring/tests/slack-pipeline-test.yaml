@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: bankops-slack-pipeline-test
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: bankops.test.delivery
+      rules:
+        - alert: BankOpsSlackPipelineTest
+          expr: vector(1)
+          for: 1m
+          labels:
+            scope: bankops
+            severity: warning
+            namespace: monitoring
+            demo: "true"
+          annotations:
+            summary: "Thử gửi Slack từ Prometheus và Alertmanager"
+            description: "Đây là test; đổi expr về vector(0) > 0 sau khi nhận firing."
