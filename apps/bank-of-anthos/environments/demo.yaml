@@ -4,6 +4,7 @@ ledgerDb:
   image: tunas106/bankops-ledger-db:sha-c5f2380990b7-b14@sha256:156d8b415985717341d440731ecfcd42cc0c3a031cd289188c0396f468675343
 frontend:
   replicas: 1
+  scheme: https
   bankName: BankOps Auto Sync Test
   image: tunas106/bankops-frontend:sha-c5f2380990b7-b14@sha256:7d711244469023a08ec98649173fb8e6d15c9d98408d1c116d77116c9b8458a0
 balancereader:
@@ -16,8 +17,12 @@ ingress:
   enabled: true
   className: traefik
   host: bankops.test
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
   tls:
-    enabled: false
+    enabled: true
+    secretName: bankops-https-tls
 userservice:
   replicas: 1
   image: tunas106/bankops-userservice:sha-c5f2380990b7-b14@sha256:98c3eda821764b577c988029493e44b32e73e3f6a2760ce1cb1bca9ec72b37f0
