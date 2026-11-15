@@ -1,0 +1,7 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: bankops-demo-ca
+spec:
+  ca:
+    secretName: bankops-demo-root-ca

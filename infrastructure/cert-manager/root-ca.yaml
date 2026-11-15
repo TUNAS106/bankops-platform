@@ -1,0 +1,26 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bankops-demo-root-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  commonName: BankOps Demo Root CA
+  subject:
+    organizations:
+      - BankOps Lab
+  secretName: bankops-demo-root-ca
+  duration: 8760h
+  renewBefore: 720h
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Never
+  usages:
+    - cert sign
+    - crl sign
+    - digital signature
+  issuerRef:
+    name: bankops-bootstrap
+    kind: ClusterIssuer
+    group: cert-manager.io
