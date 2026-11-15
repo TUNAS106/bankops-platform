@@ -1,0 +1,43 @@
+prometheus:
+  prometheusSpec:
+    probeSelectorNilUsesHelmValues: false
+    probeSelector:
+      matchLabels:
+        release: monitoring
+    probeNamespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
+
+alertmanager:
+  alertmanagerSpec:
+    secrets:
+      - alertmanager-slack
+  config:
+    route:
+      receiver: "null"
+      group_by: [alertname, namespace, instance, pod, mountpoint]
+      group_wait: 30s
+      group_interval: 1m
+      repeat_interval: 4h
+      routes:
+        - receiver: slack-bankops
+          matchers:
+            - 'scope="bankops"'
+            - 'severity=~"warning|critical"'
+    receivers:
+      - name: "null"
+      - name: slack-bankops
+        slack_configs:
+          - api_url_file: /etc/alertmanager/secrets/alertmanager-slack/webhook-url
+            send_resolved: true
+            title: '[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
+            text: |-
+              {{ range .Alerts }}
+              *Alert:* {{ .Labels.alertname }} | *Severity:* {{ .Labels.severity }}
+              *Status:* {{ .Status }}
+              *Namespace:* {{ .Labels.namespace }}
+              *Pod:* {{ .Labels.pod }} | *Container:* {{ .Labels.container }}
+              *Instance:* {{ .Labels.instance }} | *Mount:* {{ .Labels.mountpoint }}
+              *Summary:* {{ .Annotations.summary }}
+              *Action:* {{ .Annotations.description }}
+              {{ end }}

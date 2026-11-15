@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: bankops-http
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  jobName: bankops-http
+  interval: 30s
+  scrapeTimeout: 10s
+  module: bankops_http
+  prober:
+    url: blackbox-exporter.monitoring.svc.cluster.local:9115
+    scheme: http
+    path: /probe
+  targets:
+    staticConfig:
+      static:
+        - http://rke2-traefik.kube-system.svc.cluster.local/login
