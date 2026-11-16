@@ -1,3 +1,5 @@
+nodeSelector:
+  bankops.io/workload: "true"
 accountsDb:
   image: tunas106/bankops-accounts-db:sha-c5f2380990b7-b14@sha256:3b26cf3ac5e2f4679dbdfc555665b995a485f4fad2e73631aa76be6e6dbb73a7
 ledgerDb:
