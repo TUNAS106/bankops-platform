@@ -26,17 +26,6 @@ The platform runs on a small, self-managed RKE2 cluster on AWS EC2: one control-
 
 The application is based on Google's **[Bank of Anthos](https://github.com/GoogleCloudPlatform/bank-of-anthos)** sample. This project's focus is the DevOps integration and operation of that application; the banking application is not presented as original work.
 
-## ✨ Key Highlights
-
-- **Selective CI:** Jenkins detects affected services and runs the corresponding quality checks and image builds. An explicit `FORCE_ALL` option supports a full build.
-- **Container publishing:** Python services and database images use Dockerfiles; Java services use Maven/Jib. Images are published to Docker Hub with commit/build tags and recorded digests.
-- **Security visibility:** Trivy scans built images and archives HIGH/CRITICAL vulnerability reports. The current policy reports vulnerabilities without blocking publication solely on severity.
-- **Reviewed GitOps updates:** After publishing, Jenkins can open a pull request updating selected image references in this repository. A human reviews and merges the change.
-- **Argo CD delivery:** Argo CD renders the application Helm chart and reconciles merged configuration into RKE2, with automated sync and self-healing.
-- **Persistent storage:** Longhorn provides replicated volumes backed by worker EBS data disks for PostgreSQL and monitoring components.
-- **Monitoring and notifications:** Prometheus collects cluster metrics and Blackbox availability checks; Grafana provisions dashboards from code; Alertmanager routes BankOps alerts to Slack.
-- **HTTPS demonstration:** cert-manager issues an application certificate from an internal demo CA. Traefik terminates HTTPS for `bankops.test`.
-
 ## 🏗️ System Architecture
 
 ![BankOps high-level system architecture](docs/architecture/bankops-architecture.png)
@@ -73,20 +62,16 @@ Prometheus scrapes exporters and Blackbox probe results. Grafana queries Prometh
 
 The Blackbox HTTPS probe reaches Traefik through its **internal Kubernetes Service**, using the application hostname for Host/SNI and validating the demo CA. It checks the frontend login endpoint, not the complete public Internet path or a banking transaction.
 
-## 📸 Demo & Screenshots
+## ✨ Key Highlights
 
-*Demo video and screenshots will be added here.*
-
-<!-- Add evidence here when ready:
-1. Demo video: commit → Jenkins → deployment PR → merge → Argo CD → application.
-2. BankOps application over HTTPS.
-3. Jenkins selective CI pipeline and published image artifacts.
-4. Argo CD application synchronization and health.
-5. Grafana BankOps dashboard.
-6. Slack firing and resolved notifications.
-Store screenshots under docs/screenshots/ and use relative links.
-Redact credentials, tokens, webhook URLs, and other sensitive information.
--->
+- **Selective CI:** Jenkins detects affected services and runs the corresponding quality checks and image builds. An explicit `FORCE_ALL` option supports a full build.
+- **Container publishing:** Python services and database images use Dockerfiles; Java services use Maven/Jib. Images are published to Docker Hub with commit/build tags and recorded digests.
+- **Security visibility:** Trivy scans built images and archives HIGH/CRITICAL vulnerability reports. The current policy reports vulnerabilities without blocking publication solely on severity.
+- **Reviewed GitOps updates:** After publishing, Jenkins can open a pull request updating selected image references in this repository. A human reviews and merges the change.
+- **Argo CD delivery:** Argo CD renders the application Helm chart and reconciles merged configuration into RKE2, with automated sync and self-healing.
+- **Persistent storage:** Longhorn provides replicated volumes backed by worker EBS data disks for PostgreSQL and monitoring components.
+- **Monitoring and notifications:** Prometheus collects cluster metrics and Blackbox availability checks; Grafana provisions dashboards from code; Alertmanager routes BankOps alerts to Slack.
+- **HTTPS demonstration:** cert-manager issues an application certificate from an internal demo CA. Traefik terminates HTTPS for `bankops.test`.
 
 ## 📂 Repository Structure
 
