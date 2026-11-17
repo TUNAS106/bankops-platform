@@ -1,18 +1,18 @@
 nodeSelector:
-  bankops.io/workload: "true"
+  bankops.io/workload: 'true'
 accountsDb:
-  image: tunas106/bankops-accounts-db:sha-c5f2380990b7-b14@sha256:3b26cf3ac5e2f4679dbdfc555665b995a485f4fad2e73631aa76be6e6dbb73a7
+  image: tunas106/bankops-accounts-db:sha-7f672c26c446-b17@sha256:9298520430d3814f127238d9199a3b0bbf6a55ab4239f251e22e9dd56c9562f2
 ledgerDb:
-  image: tunas106/bankops-ledger-db:sha-c5f2380990b7-b14@sha256:156d8b415985717341d440731ecfcd42cc0c3a031cd289188c0396f468675343
+  image: tunas106/bankops-ledger-db:sha-7f672c26c446-b17@sha256:9069f01af7883ef73b45978cd77f71b16ae9fb8d0d3b2d96c44d4c20cbf74b3f
 frontend:
   replicas: 1
   scheme: https
-  bankName: BankOps 
-  image: tunas106/bankops-frontend:sha-c5f2380990b7-b14@sha256:7d711244469023a08ec98649173fb8e6d15c9d98408d1c116d77116c9b8458a0
+  bankName: BankOps
+  image: tunas106/bankops-frontend:sha-7f672c26c446-b17@sha256:5d7c779c359030c5cc95e3418e705b9723566b0cb9835a81406bfffc1d155da3
 balancereader:
   cacheSize: '1000'
   replicas: 1
-  image: tunas106/bankops-balancereader:sha-c5f2380990b7-b14@sha256:42a51d724d0537a5214b653d63c00fd60eb9d8ee0df3f396716c9e47262ae1ee
+  image: tunas106/bankops-balancereader:sha-7f672c26c446-b17@sha256:42a51d724d0537a5214b653d63c00fd60eb9d8ee0df3f396716c9e47262ae1ee
 loadgenerator:
   enabled: false
 ingress:
@@ -21,19 +21,19 @@ ingress:
   host: bankops.test
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls: 'true'
   tls:
     enabled: true
     secretName: bankops-https-tls
 userservice:
   replicas: 1
-  image: tunas106/bankops-userservice:sha-c5f2380990b7-b14@sha256:98c3eda821764b577c988029493e44b32e73e3f6a2760ce1cb1bca9ec72b37f0
+  image: tunas106/bankops-userservice:sha-7f672c26c446-b17@sha256:71304ea48cc06e1b968c549889fcff145dcec0c35ba5db3e8bcac35d1535c0c4
 contacts:
   replicas: 1
-  image: tunas106/bankops-contacts:sha-c5f2380990b7-b14@sha256:a8ffb4fe1c50f7e6aef62a527bf33aa36a9b1ad981d0b3e353e5e7242a9a716b
+  image: tunas106/bankops-contacts:sha-7f672c26c446-b17@sha256:9a8d3e3825b89b0fe3bed66532195509bfe6aa566b4007ba16dca3c9d288edc5
 transactionhistory:
   replicas: 1
-  image: tunas106/bankops-transactionhistory:sha-c5f2380990b7-b14@sha256:609acd4d93aed03139a59e3c4f58bedb695cf4649dbe6fae636d2f45bad3d811
+  image: tunas106/bankops-transactionhistory:sha-7f672c26c446-b17@sha256:609acd4d93aed03139a59e3c4f58bedb695cf4649dbe6fae636d2f45bad3d811
 ledgerwriter:
   replicas: 1
-  image: tunas106/bankops-ledgerwriter:sha-c5f2380990b7-b14@sha256:b66efed587c295788369459898e7ae5a5e15150c3fcd782170c19a8c4b31059d
+  image: tunas106/bankops-ledgerwriter:sha-7f672c26c446-b17@sha256:b66efed587c295788369459898e7ae5a5e15150c3fcd782170c19a8c4b31059d
