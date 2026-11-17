@@ -7,7 +7,7 @@ ledgerDb:
 frontend:
   replicas: 1
   scheme: https
-  bankName: BankOps Auto Sync Test
+  bankName: BankOps 
   image: tunas106/bankops-frontend:sha-c5f2380990b7-b14@sha256:7d711244469023a08ec98649173fb8e6d15c9d98408d1c116d77116c9b8458a0
 balancereader:
   cacheSize: '1000'
